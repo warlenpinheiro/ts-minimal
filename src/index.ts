@@ -12,7 +12,7 @@ import { requestLogger } from './middleware/requestLogger';
 import { setupContainer } from './container/setup';
 import { DatabaseInitializer } from './infra/database/DatabaseInitializer';
 import { DatabaseManager } from './infra/database/DatabaseManager';
-import { setupSwagger } from './docs/swagger';
+import { setupSwagger } from './openapi/swagger';
 
 dotenv.config();
 

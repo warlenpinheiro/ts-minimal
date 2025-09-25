@@ -103,7 +103,7 @@ src/
 ├── schemas/              # Schemas de validação (Zod)
 ├── routes/               # Rotas da API
 ├── middleware/           # Middlewares (validation, logging, errors)
-├── docs/                 # Documentação Swagger
+├── openapi/              # Configuração Swagger/OpenAPI
 ├── container/            # Injeção de dependência
 ├── types/                # Tipos e classes de erro
 └── infra/                # Camada de infraestrutura
