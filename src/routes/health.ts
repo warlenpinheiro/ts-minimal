@@ -16,12 +16,12 @@ healthRouter.get('/', (req, res) => {
 
 // Health check completo - verifica app + dependências
 healthRouter.get('/health', (req, res, next) => {
-  const controller = container.resolve<HealthCheckController>('HealthCheckController');
+  const controller = container.cradle.healthCheckController;
   controller.handle(req, res, next);
 });
 
 // Readiness probe - verifica se app está pronto para receber tráfego
 healthRouter.get('/ready', (req, res, next) => {
-  const controller = container.resolve<ReadinessController>('ReadinessController');
+  const controller = container.cradle.readinessController;
   controller.handle(req, res, next);
 });

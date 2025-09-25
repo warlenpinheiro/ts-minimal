@@ -8,7 +8,8 @@ Boilerplate minimal para APIs em TypeScript com boas práticas.
 - ✅ TypeScript configurado
 - ✅ Express.js
 - ✅ Arquitetura em camadas (Entity/Controller/Service/Repository/Infra)
-- ✅ **Injeção de dependência** (Awilix)
+- ✅ **Injeção de dependência** (Awilix + Awilix-Express)
+- ✅ **Decorators** para rotas e middlewares
 - ✅ Separação de domínio e infraestrutura
 
 ### Padrões Arquiteturais
@@ -174,19 +175,24 @@ const result = await cepService.execute('user-id', '01310-100');
 
 ## Padrões Implementados
 
-### Dependency Injection (Awilix)
+### Dependency Injection (Awilix + Awilix-Express)
 - **Auto-injection**: Constructor parameters injetados automaticamente
+- **Decorators**: Rotas definidas com `@GET()`, `@POST()`, etc.
+- **Auto-loading**: Controllers carregados automaticamente
 - **Lifetimes**: Singleton, Scoped, Transient
-- **Type-safe**: `container.cradle` com IntelliSense
 ```typescript
-// Configuração
-container.register({
-  userService: asClass(UserService).singleton(),
-  userController: asClass(UserController).scoped()
-});
+// Controller com decorators
+@route('/users')
+export class UserController {
+  constructor(private userService: UserService) {}
 
-// Uso
-const service = container.cradle.userService; // Type-safe!
+  @GET()
+  @before(validateBody(schema))
+  async create(req: Request, res: Response) {}
+}
+
+// Auto-loading
+usersRouter.use(loadControllers('../controllers/*.{ts,js}'));
 ```
 
 ### Repository Pattern
@@ -220,24 +226,25 @@ return result.value;
 - Result Pattern para tratamento de erros
 - DTOs para desacoplamento da API
 
-### Injeção de Dependência
+### Injeção de Dependência + Decorators
 ```typescript
-// Auto-injection nos services
-export class CreateUserService {
+// Controllers com decorators
+@route('/users')
+export class CreateUserController {
   constructor(
-    private createUserRepository: ICreateUserRepository,
-    private sendWelcomeEmailService: SendWelcomeEmailService
+    private createUserService: CreateUserService
   ) {}
+
+  @POST()
+  @before(validateBody(createUserSchema))
+  async handle(req: Request, res: Response, next: NextFunction) {
+    const result = await this.createUserService.execute(req.body);
+    res.status(201).json({ data: result.value });
+  }
 }
 
-// Configuração no container
-container.register({
-  createUserService: asClass(CreateUserService).singleton(),
-  createUserRepository: asValue(RepositoryFactory.create()),
-});
-
-// Uso type-safe
-const service = container.cradle.createUserService;
+// Auto-loading de controllers
+usersRouter.use(loadControllers('../controllers/*.{ts,js}'));
 ```
 
 ## Documentação Arquitetural
@@ -246,3 +253,4 @@ Decisões arquiteturais estão documentadas em [ADRs (Architecture Decision Reco
 - Separação Repositories vs Gateways
 - Cliente HTTP Reutilizável
 - Migração para Awilix
+- Integração com Awilix-Express
