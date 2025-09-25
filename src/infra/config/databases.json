@@ -1,0 +1,34 @@
+{
+  "development": {
+    "users": {
+      "type": "postgres",
+      "host": "localhost",
+      "port": 5432,
+      "database": "users_db",
+      "username": "user",
+      "password": "pass"
+    },
+    "contracts": {
+      "type": "mongodb",
+      "host": "localhost",
+      "port": 27017,
+      "database": "contracts_db"
+    }
+  },
+  "production": {
+    "users": {
+      "type": "postgres",
+      "host": "${DB_USERS_HOST}",
+      "port": "${DB_USERS_PORT}",
+      "database": "${DB_USERS_NAME}",
+      "username": "${DB_USERS_USER}",
+      "password": "${DB_USERS_PASS}"
+    },
+    "contracts": {
+      "type": "mongodb",
+      "host": "${DB_CONTRACTS_HOST}",
+      "port": "${DB_CONTRACTS_PORT}",
+      "database": "${DB_CONTRACTS_NAME}"
+    }
+  }
+}
