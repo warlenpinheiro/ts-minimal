@@ -138,7 +138,6 @@ Copie `.env.example` para `.env` e configure:
 ### Usuários
 - `GET /users` - Listar usuários
 - `GET /users/:id` - Buscar usuário
-- `GET /users/:id/with-address` - Buscar usuário com endereço
 - `POST /users` - Criar usuário (envia email de boas-vindas)
 
 ### Documentação
@@ -156,9 +155,9 @@ curl -X POST http://localhost:3000/users \
   }'
 ```
 
-### Buscar Usuário com Endereço
+### Buscar Usuário por ID
 ```bash
-curl http://localhost:3000/users/1/with-address
+curl http://localhost:3000/users/1
 ```
 
 ### Health Check Completo
