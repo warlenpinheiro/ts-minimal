@@ -22,15 +22,26 @@ export class DatabaseConfig {
     
     // Replace environment variables in production
     if (env === 'production') {
-      return {
+      const processedConfig = {
         ...config,
+        type: config.type as DatabaseConnectionConfig['type'],
         host: this.replaceEnvVars(config.host),
         database: this.replaceEnvVars(config.database),
-        username: config.username ? this.replaceEnvVars(config.username) : undefined,
-        password: config.password ? this.replaceEnvVars(config.password) : undefined,
+        username: (config as any).username ? this.replaceEnvVars((config as any).username) : undefined,
+        password: (config as any).password ? this.replaceEnvVars((config as any).password) : undefined,
       };
+      
+      // Convert port to number if it's a string
+      if (typeof processedConfig.port === 'string') {
+        processedConfig.port = parseInt(processedConfig.port, 10);
+      }
+      
+      return processedConfig as DatabaseConnectionConfig;
     }
     
-    return config;
+    return {
+      ...config,
+      type: config.type as DatabaseConnectionConfig['type']
+    } as DatabaseConnectionConfig;
   }
 }

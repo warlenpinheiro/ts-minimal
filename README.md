@@ -4,27 +4,46 @@ Boilerplate minimal para APIs em TypeScript com boas práticas.
 
 ## Características
 
+### Core
 - ✅ TypeScript configurado
 - ✅ Express.js
 - ✅ Arquitetura em camadas (Entity/Controller/Service/Repository/Infra)
 - ✅ Injeção de dependência
 - ✅ Separação de domínio e infraestrutura
+
+### Padrões Arquiteturais
+- ✅ **Repository Pattern** com interfaces específicas
+- ✅ **Gateway Pattern** para serviços externos
+- ✅ **Composition Pattern** para relacionamentos
+- ✅ **Result Pattern** para tratamento de erros
+- ✅ **Factory Pattern** para criação de instâncias
+
+### Segurança & Qualidade
 - ✅ Middleware de segurança (Helmet, CORS)
 - ✅ Rate limiting
 - ✅ Validação com Zod
 - ✅ Tratamento de erros específicos
-- ✅ Result Pattern
+- ✅ ESLint configurado
+- ✅ Pre-commit hooks (Husky + lint-staged)
+
+### APIs & Integrações
 - ✅ DTOs para API
+- ✅ **Cliente HTTP reutilizável** (fetch nativo)
+- ✅ **Gateway de Email** (Console/SendGrid)
+- ✅ **Gateway de CEP** (ViaCEP)
+- ✅ Documentação Swagger
+
+### Observabilidade
 - ✅ Health checks avançados
 - ✅ Request/Response logging
-- ✅ Documentação Swagger
 - ✅ Graceful shutdown
+
+### DevOps & Testes
 - ✅ Docker + Docker Compose
 - ✅ Scripts de setup
 - ✅ Testes (Jest + Supertest)
-- ✅ Pre-commit hooks (Husky + lint-staged)
-- ✅ ESLint configurado
 - ✅ Hot reload com tsx
+- ✅ **ADRs** (Architecture Decision Records)
 
 ## Instalação Rápida
 
@@ -76,7 +95,9 @@ src/
 ├── entities/             # Entidades de domínio
 ├── controllers/          # Controllers por funcionalidade
 ├── services/             # Services por funcionalidade
-├── repositories/         # Interfaces dos repositories
+├── repositories/         # Interfaces dos repositories (persistência)
+├── gateways/             # Interfaces para serviços externos
+├── clients/              # Interfaces para clientes genéricos (HTTP, etc)
 ├── dtos/                 # Data Transfer Objects
 ├── schemas/              # Schemas de validação (Zod)
 ├── routes/               # Rotas da API
@@ -89,7 +110,9 @@ src/
     ├── database/         # Conexões e models
     │   ├── connections/  # Conexões específicas por banco
     │   └── models/       # Models e relations do ORM
-    └── repositories/     # Implementações dos repositories
+    ├── repositories/     # Implementações dos repositories
+    ├── gateways/         # Implementações de serviços externos
+    └── clients/          # Implementações de clientes genéricos
 ```
 
 ## Variáveis de Ambiente
@@ -99,24 +122,85 @@ Copie `.env.example` para `.env` e configure:
 - `PORT`: Porta do servidor (padrão: 3000)
 - `NODE_ENV`: Ambiente (development/production)
 - `REPOSITORY_TYPE`: Tipo de repositório (memory/sequelize)
+- `DATABASE_URL`: URL do banco de dados
 - `API_URL`: URL da API para documentação Swagger
+- `EMAIL_GATEWAY_TYPE`: Tipo de gateway de email (console/sendgrid)
+- `SENDGRID_API_KEY`: Chave da API do SendGrid (produção)
 
 ## Endpoints Principais
 
+### Health Check
 - `GET /health` - Health check básico
 - `GET /health/health` - Health check completo
 - `GET /health/ready` - Readiness probe
+
+### Usuários
 - `GET /users` - Listar usuários
 - `GET /users/:id` - Buscar usuário
-- `POST /users` - Criar usuário
+- `GET /users/:id/with-address` - Buscar usuário com endereço
+- `POST /users` - Criar usuário (envia email de boas-vindas)
+
+### Documentação
 - `GET /docs` - Documentação Swagger
+
+## Exemplos de Uso
+
+### Criar Usuário
+```bash
+curl -X POST http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "João Silva",
+    "email": "joao@example.com"
+  }'
+```
+
+### Buscar Usuário com Endereço
+```bash
+curl http://localhost:3000/users/1/with-address
+```
+
+### Health Check Completo
+```bash
+curl http://localhost:3000/health/health
+```
+
+### Consultar CEP (via service)
+```typescript
+// Exemplo de uso do ViaCepGateway
+const cepService = new CreateAddressFromCepService();
+const result = await cepService.execute('user-id', '01310-100');
+```
+
+## Padrões Implementados
+
+### Repository Pattern
+- **Persistência**: Interfaces específicas por operação
+- **Composition**: Services compõem múltiplos repositories
+- **Exemplo**: `GetUserWithAddressService` usa `IGetUserRepository` + `IGetAddressRepository`
+
+### Gateway Pattern
+- **Serviços externos**: Email, APIs, Pagamentos
+- **Reutilização**: `IHttpClient` compartilhado entre gateways
+- **Exemplo**: `ViaCepGateway` e `HttpEmailGateway` usam o mesmo `FetchHttpClient`
+
+### Result Pattern
+```typescript
+// Tratamento de erros sem exceptions
+const result = await userService.execute(data);
+if (result.isFailure) {
+  throw result.error;
+}
+return result.value;
+```
 
 ## Arquitetura
 
 **Princípios aplicados:**
 - Clean Architecture
-- SOLID
+- SOLID (especialmente Interface Segregation)
 - Dependency Injection
 - Single Responsibility (um controller/service por funcionalidade)
+- Composition over Inheritance
 - Result Pattern para tratamento de erros
 - DTOs para desacoplamento da API

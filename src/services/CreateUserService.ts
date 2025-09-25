@@ -4,19 +4,26 @@ import { CreateUserRequestDTO } from '../dtos/CreateUserRequestDTO';
 import { UserResponseDTO } from '../dtos/UserResponseDTO';
 import { Result } from '../types/Result';
 import { ValidationError, DatabaseError, DuplicateEmailError } from '../types/errors';
+import { SendWelcomeEmailService } from './SendWelcomeEmailService';
 import { container } from '../container/Container';
 
 export class CreateUserService {
   private userRepository: ICreateUserRepository;
+  private sendWelcomeEmailService: SendWelcomeEmailService;
 
   constructor() {
     this.userRepository = container.resolve<ICreateUserRepository>('CreateUserRepository');
+    this.sendWelcomeEmailService = container.resolve<SendWelcomeEmailService>('SendWelcomeEmailService');
   }
 
   async execute(requestDTO: CreateUserRequestDTO): Promise<Result<UserResponseDTO, ValidationError | DatabaseError | DuplicateEmailError>> {
     try {
       const user = User.create(requestDTO.name, requestDTO.email);
       const savedUser = await this.userRepository.save(user);
+      
+      // Enviar email de boas-vindas (não bloqueia se falhar)
+      this.sendWelcomeEmailService.execute(savedUser.email, savedUser.name)
+        .catch(error => console.warn('Failed to send welcome email:', error));
       
       const userDTO: UserResponseDTO = {
         id: savedUser.id,
