@@ -29,7 +29,7 @@ export const usersRouter = Router();
  *                     $ref: '#/components/schemas/User'
  */
 usersRouter.get('/', (req, res, next) => {
-  const controller = container.resolve<ListUsersController>('ListUsersController');
+  const controller = container.cradle.listUsersController;
   controller.handle(req, res, next);
 });
 
@@ -65,7 +65,7 @@ usersRouter.get('/', (req, res, next) => {
 usersRouter.get('/:id', 
   validateParams(getUserParamsSchema),
   (req, res, next) => {
-    const controller = container.resolve<GetUserController>('GetUserController');
+    const controller = container.cradle.getUserController;
     controller.handle(req, res, next);
   }
 );
@@ -91,7 +91,7 @@ usersRouter.get('/:id',
 usersRouter.get('/:id/with-address', 
   validateParams(getUserParamsSchema),
   (req, res, next) => {
-    const controller = container.resolve<GetUserWithAddressController>('GetUserWithAddressController');
+    const controller = container.cradle.getUserWithAddressController;
     controller.handle(req, res, next);
   }
 );
@@ -128,7 +128,7 @@ usersRouter.get('/:id/with-address',
 usersRouter.post('/', 
   validateBody(createUserSchema),
   (req, res, next) => {
-    const controller = container.resolve<CreateUserController>('CreateUserController');
+    const controller = container.cradle.createUserController;
     controller.handle(req, res, next);
   }
 );

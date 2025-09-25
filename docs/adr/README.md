@@ -6,6 +6,7 @@ Este diretório contém as decisões arquiteturais tomadas durante o desenvolvim
 
 - [ADR-001: Separação entre Repositories e Gateways](./001-repository-gateway-separation.md)
 - [ADR-002: Cliente HTTP Reutilizável](./002-http-client-reusability.md)
+- [ADR-003: Migração para Awilix](./003-awilix-dependency-injection.md)
 
 ## Formato
 

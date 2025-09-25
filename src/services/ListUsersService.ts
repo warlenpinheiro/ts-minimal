@@ -1,17 +1,12 @@
 import { IListUsersRepository } from '../repositories/IListUsersRepository';
 import { ListUsersResponseDTO } from '../dtos/ListUsersResponseDTO';
 import { UserResponseDTO } from '../dtos/UserResponseDTO';
-import { container } from '../container/Container';
 
 export class ListUsersService {
-  private userRepository: IListUsersRepository;
-
-  constructor() {
-    this.userRepository = container.resolve<IListUsersRepository>('ListUsersRepository');
-  }
+  constructor(private listUsersRepository: IListUsersRepository) {}
 
   async execute(): Promise<ListUsersResponseDTO> {
-    const users = await this.userRepository.findAll();
+    const users = await this.listUsersRepository.findAll();
     
     const userDTOs: UserResponseDTO[] = users.map(user => ({
       id: user.id,

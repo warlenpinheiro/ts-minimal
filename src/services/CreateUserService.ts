@@ -5,21 +5,17 @@ import { UserResponseDTO } from '../dtos/UserResponseDTO';
 import { Result } from '../types/Result';
 import { ValidationError, DatabaseError, DuplicateEmailError } from '../types/errors';
 import { SendWelcomeEmailService } from './SendWelcomeEmailService';
-import { container } from '../container/Container';
 
 export class CreateUserService {
-  private userRepository: ICreateUserRepository;
-  private sendWelcomeEmailService: SendWelcomeEmailService;
-
-  constructor() {
-    this.userRepository = container.resolve<ICreateUserRepository>('CreateUserRepository');
-    this.sendWelcomeEmailService = container.resolve<SendWelcomeEmailService>('SendWelcomeEmailService');
-  }
+  constructor(
+    private createUserRepository: ICreateUserRepository,
+    private sendWelcomeEmailService: SendWelcomeEmailService
+  ) {}
 
   async execute(requestDTO: CreateUserRequestDTO): Promise<Result<UserResponseDTO, ValidationError | DatabaseError | DuplicateEmailError>> {
     try {
       const user = User.create(requestDTO.name, requestDTO.email);
-      const savedUser = await this.userRepository.save(user);
+      const savedUser = await this.createUserRepository.save(user);
       
       // Enviar email de boas-vindas (não bloqueia se falhar)
       this.sendWelcomeEmailService.execute(savedUser.email, savedUser.name)

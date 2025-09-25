@@ -2,17 +2,12 @@ import { IGetUserRepository } from '../repositories/IGetUserRepository';
 import { UserResponseDTO } from '../dtos/UserResponseDTO';
 import { Result } from '../types/Result';
 import { UserNotFoundError } from '../types/errors';
-import { container } from '../container/Container';
 
 export class GetUserService {
-  private userRepository: IGetUserRepository;
-
-  constructor() {
-    this.userRepository = container.resolve<IGetUserRepository>('GetUserRepository');
-  }
+  constructor(private getUserRepository: IGetUserRepository) {}
 
   async execute(id: string): Promise<Result<UserResponseDTO, UserNotFoundError>> {
-    const user = await this.userRepository.findById(id);
+    const user = await this.getUserRepository.findById(id);
     
     if (!user) {
       return Result.failure(new UserNotFoundError(id));

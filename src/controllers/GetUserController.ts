@@ -1,13 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { GetUserService } from '../services/GetUserService';
-import { container } from '../container/Container';
 
 export class GetUserController {
-  private getUserService: GetUserService;
-
-  constructor() {
-    this.getUserService = container.resolve<GetUserService>('GetUserService');
-  }
+  constructor(private getUserService: GetUserService) {}
 
   handle = async (req: Request, res: Response, next: NextFunction) => {
     try {

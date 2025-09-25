@@ -20,7 +20,7 @@ export class FetchHttpClient implements IHttpClient {
 
       clearTimeout(timeoutId);
 
-      const data = await response.json().catch(() => null);
+      const data = await response.json().catch(() => null) as T;
 
       return {
         status: response.status,

@@ -8,7 +8,7 @@ Boilerplate minimal para APIs em TypeScript com boas práticas.
 - ✅ TypeScript configurado
 - ✅ Express.js
 - ✅ Arquitetura em camadas (Entity/Controller/Service/Repository/Infra)
-- ✅ Injeção de dependência
+- ✅ **Injeção de dependência** (Awilix)
 - ✅ Separação de domínio e infraestrutura
 
 ### Padrões Arquiteturais
@@ -43,7 +43,7 @@ Boilerplate minimal para APIs em TypeScript com boas práticas.
 - ✅ Scripts de setup
 - ✅ Testes (Jest + Supertest)
 - ✅ Hot reload com tsx
-- ✅ **ADRs** (Architecture Decision Records)
+- ✅ **ADRs** (Architecture Decision Records) - [Ver docs/adr/](./docs/adr/)
 
 ## Instalação Rápida
 
@@ -168,11 +168,26 @@ curl http://localhost:3000/health/health
 ### Consultar CEP (via service)
 ```typescript
 // Exemplo de uso do ViaCepGateway
-const cepService = new CreateAddressFromCepService();
+const cepService = container.cradle.createAddressFromCepService;
 const result = await cepService.execute('user-id', '01310-100');
 ```
 
 ## Padrões Implementados
+
+### Dependency Injection (Awilix)
+- **Auto-injection**: Constructor parameters injetados automaticamente
+- **Lifetimes**: Singleton, Scoped, Transient
+- **Type-safe**: `container.cradle` com IntelliSense
+```typescript
+// Configuração
+container.register({
+  userService: asClass(UserService).singleton(),
+  userController: asClass(UserController).scoped()
+});
+
+// Uso
+const service = container.cradle.userService; // Type-safe!
+```
 
 ### Repository Pattern
 - **Persistência**: Interfaces específicas por operação
@@ -199,8 +214,35 @@ return result.value;
 **Princípios aplicados:**
 - Clean Architecture
 - SOLID (especialmente Interface Segregation)
-- Dependency Injection
+- **Dependency Injection** (Awilix com auto-injection)
 - Single Responsibility (um controller/service por funcionalidade)
 - Composition over Inheritance
 - Result Pattern para tratamento de erros
 - DTOs para desacoplamento da API
+
+### Injeção de Dependência
+```typescript
+// Auto-injection nos services
+export class CreateUserService {
+  constructor(
+    private createUserRepository: ICreateUserRepository,
+    private sendWelcomeEmailService: SendWelcomeEmailService
+  ) {}
+}
+
+// Configuração no container
+container.register({
+  createUserService: asClass(CreateUserService).singleton(),
+  createUserRepository: asValue(RepositoryFactory.create()),
+});
+
+// Uso type-safe
+const service = container.cradle.createUserService;
+```
+
+## Documentação Arquitetural
+
+Decisões arquiteturais estão documentadas em [ADRs (Architecture Decision Records)](./docs/adr/):
+- Separação Repositories vs Gateways
+- Cliente HTTP Reutilizável
+- Migração para Awilix
